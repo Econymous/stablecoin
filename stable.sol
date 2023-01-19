@@ -6,7 +6,7 @@ contract Synthony{
     uint synthetics;
     mapping(uint => Synthetic) synthetic;
     struct Synthetic{
-        _SyntheticToken token;
+        SyntheticToken token;
         string name;
         string description;
         mapping(uint=>uint) loanRatio;
@@ -24,10 +24,11 @@ contract Synthony{
     mapping(uint => Debt) debt;
     struct Debt{
         address owner;
+        uint collateralAmount;
         uint syntheticID;
         uint collateralID;
-        uint interestRate;
         uint threshold;
+        uint date;
     }
 
     uint tickets;
@@ -47,9 +48,12 @@ contract Synthony{
         uint syntheticTokens = collateralAmount * scale / synth.loanRatio[collateralType];
 
         Debt storage _debt = debt[debts];
-        _debt.owner = sender; 
-        _debt.interestRate = synth.interestRate[collateralType];
+        _debt.owner = sender;
         _debt.threshold = synth.threshold[collateralType];
+        _debt.date = block.timestamp;
+        _debt.collateralID = collateralType;
+        _debt.collateralAmount = collateralAmount;
+        _debt.syntheticID = syntheticType;
         collaterals++;   
 
         synth.token.mint(sender,syntheticTokens);
@@ -108,7 +112,6 @@ contract Synthony{
     }
 
     function createSynthetic_response() internal{
-        //
         //new SyntheticToken();
     }
 
@@ -181,7 +184,7 @@ interface IERC20 {
 }
 
 
-contract _SyntheticToken is IERC20 {
+contract SyntheticToken is IERC20 {
     using SafeMath for uint256;
 
     string public name;
