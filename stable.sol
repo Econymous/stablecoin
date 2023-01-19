@@ -59,8 +59,13 @@ contract Synthony{
         synth.token.mint(sender,syntheticTokens);
     }
 
-    function transferDebt() external{
-        //require(msg.sender == );
+    event TransferDebt(address from, address to, uint debtID);
+    function transferDebt(address to, uint debtID) external{
+        Debt storage _debt = debt[debtID];
+        address sender = msg.sender;
+        require(sender == _debt.owner);
+        _debt.owner = to;
+        emit TransferDebt(sender, to, debtID);
     }
 
     function resolveDebt() external{
